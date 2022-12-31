@@ -7,25 +7,24 @@ const reducer = (state, action) => {
         ...state,
         cart: state.cart.filter((cartItem) => cartItem.id != action.payload),
       };
-    case "INCREASE":
-      let incCart = state.cart.map((cartItem) => {
-        if (cartItem.id === action.payload) {
-          return { ...cartItem, amount: cartItem.amount + 1 };
-        }
-        return cartItem;
-      });
-      return { ...state, cart: incCart };
-    case "DECREASE":
-      let decCart = state.cart.map((cartItem) => {
-        if (cartItem.id === action.payload) {
-          if (cartItem.amount > 1) {
-            return { ...cartItem, amount: cartItem.amount - 1 };
+
+    case "TOGGLE_AMOUNT":
+      let tempCart = state.cart.map((cartItem) => {
+        if (cartItem.id === action.payload.id) {
+          if (action.payload.type === "inc") {
+            return { ...cartItem, amount: cartItem.amount + 1 };
           }
-          return cartItem;
+          if (action.payload.type === "dec") {
+            if (cartItem.amount > 1) {
+              return { ...cartItem, amount: cartItem.amount - 1 };
+            }
+            return cartItem;
+          }
         }
         return cartItem;
       });
-      return { ...state, cart: decCart };
+      return { ...state, cart: tempCart };
+
     case "GET_TOTALS":
       let { total, amount } = state.cart.reduce(
         (cartTotal, cartItem) => {
@@ -43,6 +42,10 @@ const reducer = (state, action) => {
 
       total = parseFloat(total.toFixed(2));
       return { ...state, total, amount };
+    case "LOADING":
+      return { ...state, loading: true };
+    case "DISPLAY_ITEMS":
+      return { ...state, cart: action.payload, loading: false };
 
     default:
       return state;
